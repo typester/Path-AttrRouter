@@ -1,0 +1,6 @@
+steps = FindVersion, ChangeVersion, CheckChangeLog, DistTest, Commit, Tag, MakeDist, UploadCPAN, Twitter
+
+git.tagpattern = %v
+git.push_to    = origin
+
+twitter.config = ~/.pit/twitter.yaml
