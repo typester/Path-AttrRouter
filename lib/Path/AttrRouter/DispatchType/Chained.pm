@@ -32,7 +32,7 @@ sub match {
 sub recurse_match {
     my ($self, $parent, @pathparts) = @_;
 
-    my @chains = @{ $self->chain_from->{ $parent } }
+    my @chains = @{ $self->chain_from->{ $parent } || [] }
         or return;
 
     for my $action (@chains) {
