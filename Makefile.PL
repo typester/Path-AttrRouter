@@ -7,6 +7,8 @@ requires 'Module::Pluggable::Object';
 
 test_requires 'Test::More' => '0.88';
 use_test_base;
+
+tests 't/*.t t/*/*.t';
 author_tests('xt');
 
 auto_include;
