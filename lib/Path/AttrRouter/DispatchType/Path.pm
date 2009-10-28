@@ -49,18 +49,24 @@ sub register_path {
 
     my $actions  = $self->paths->{ $path } ||= [];
     my $num_args = $action->num_args;
+
+    unless (@$actions) {
+        push @$actions, $action;
+        return;
+    }
+
     if (defined $num_args) {
         my $p;
-        for (my $i = 0; $i <= $#$actions; $i++) {
-            last unless defined $actions->[$i]->num_args;
-            $p = $i if $actions->[$i]->num_args >= $num_args;
+        for ($p = 0; $p < @$actions; ++$p) {
+            last unless defined $actions->[$p]->num_args;
+            last if $actions->[$p]->num_args <= $num_args;
         }
 
-        unless ($p) {
+        unless (defined $p) {
             unshift @$actions, $action;
         }
         else {
-            @$actions = @$actions[0..$p-1], $action, @$actions[$p..$#$actions];
+            @$actions = (@$actions[0..$p-1], $action, @$actions[$p..$#$actions]);
         }
     }
     else {
