@@ -60,18 +60,6 @@ sub BUILD {
     $self->_load_modules(@modules);
 }
 
-sub dispatch {
-    my ($self, $path) = @_;
-
-    if (my $match = $self->match($path)) {
-        if ($match->action->can('chain')) {
-            $match->action->dispatch($match);
-        }
-        return $match->action->dispatch( $match->args || $match->captures );
-    }
-    croak qq[No action found for path:"$path"];
-}
-
 sub match {
     my ($self, $path) = @_;
 
