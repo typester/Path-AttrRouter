@@ -1,7 +1,7 @@
 use Test::More;
 
 use FindBin;
-use lib "$FindBin::Bin/loader";
+use lib "$FindBin::Bin/loader"; # located file controller
 
 use Path::AttrRouter;
 
