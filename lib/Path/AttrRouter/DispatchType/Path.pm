@@ -41,6 +41,11 @@ sub register {
     1;
 }
 
+sub used {
+    my $self = shift;
+    scalar( keys %{ $self->paths } );
+}
+
 sub register_path {
     my ($self, $path, $action) = @_;
 
@@ -74,9 +79,28 @@ sub register_path {
     }
 }
 
-sub used {
-    my $self = shift;
-    scalar( keys %{ $self->paths } );
+sub list {
+    my ($self) = @_;
+    return unless $self->used;
+
+    my @rows = [[ 1 => 'Path'], [ 1 => 'Private' ]];
+
+    for my $path (sort keys %{ $self->paths }) {
+        for my $action (@{ $self->paths->{ $path } }) {
+            my $display_path = $path eq '/' ? '' : "/$path";
+
+            if (defined $action->num_args) {
+                $display_path .= '/*' for 1 .. $action->num_args;
+            }
+            else {
+                $display_path .= '/...';
+            }
+
+            push @rows, [ $display_path || '/', '/' . $action->reverse ];
+        }
+    }
+
+    return \@rows;
 }
 
 __PACKAGE__->meta->make_immutable;

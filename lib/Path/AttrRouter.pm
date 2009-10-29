@@ -44,6 +44,17 @@ has dispatch_types => (
     },
 );
 
+has routing_table => (
+    is      => 'rw',
+    isa     => 'Object',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        $self->_ensure_class_loaded('Path::AttrRouter::AsciiTable');
+        Path::AttrRouter::AsciiTable->new( router => $self );
+    },
+);
+
 no Any::Moose;
 
 sub BUILD {
@@ -93,6 +104,10 @@ sub match {
         );
     }
     return;
+}
+
+sub print_table {
+    print shift->routing_table->draw;
 }
 
 sub _load_modules {

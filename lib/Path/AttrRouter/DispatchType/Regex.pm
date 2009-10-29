@@ -50,4 +50,22 @@ sub register_regex {
     };
 }
 
+sub used {
+    my ($self) = @_;
+    scalar @{ $self->compiled };
+}
+
+sub list {
+    my ($self) = @_;
+    return unless $self->used;
+
+    my @rows = [[ 1, 'Regex' ], [ 1, 'Private' ]];
+
+    for my $re (@{ $self->compiled }) {
+        push @rows, [ $re->{path}, '/' . $re->{action}->reverse ];
+    }
+
+    \@rows;
+}
+
 __PACKAGE__->meta->make_immutable;

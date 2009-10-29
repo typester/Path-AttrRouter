@@ -6,7 +6,25 @@ use File::Spec::Unix;
 
 use Path::AttrRouter::ActionChain;
 
+has name => (
+    is      => 'rw',
+    isa     => 'Str',
+    default => 'Chained',
+);
+
 has chain_from => (
+    is      => 'rw',
+    isa     => 'HashRef',
+    default => sub { {} },
+);
+
+has endpoints => (
+    is      => 'rw',
+    isa     => 'ArrayRef',
+    default => sub { [] },
+);
+
+has actions => (
     is      => 'rw',
     isa     => 'HashRef',
     default => sub { {} },
@@ -100,7 +118,79 @@ sub register {
         }
     };
 
+    $self->actions->{ '/' . $action->reverse } = $action;
+    push @{ $self->endpoints }, $action unless $action->attributes->{CaptureArgs};
+
     @$children = sort { $num_parts->($b) <=> $num_parts->($a) } @$children, $action;
+}
+
+sub used {
+    my ($self) = @_;
+    scalar @{ $self->endpoints };
+}
+
+sub list {
+    my ($self) = @_;
+    return unless $self->used;
+
+    my @rows = [[ 1 => 'Path Spec'], [ 1 => 'Private' ]];
+    my @unattached;
+
+    for my $endpoint (sort { $a->reverse cmp $b->reverse } @{ $self->endpoints }) {
+        my @parts = defined $endpoint->num_args
+                    ? ( ('*') x $endpoint->num_args )
+                    : ('...');
+        my @parents;
+
+        my $cur = $endpoint;
+        my $parent;
+        while ($cur) {
+            if (my $cap = $cur->attributes->{CaptureArgs}) {
+                unshift @parts, (('*') x $cap->[0]);
+            }
+            if (my $pp = $cur->attributes->{PathPart}) {
+                unshift @parts, $pp->[0]
+                    if defined $pp->[0] and length $pp->[0];
+            }
+            $parent = $cur->attributes->{Chained}[0];
+            $cur = $self->actions->{ $parent };
+
+            unshift @parents, $cur if $cur;
+        }
+
+        if ($parent ne '/') {
+            push @unattached,
+                [ '/' . ($parents[0] || $endpoint)->reverse, $parent ];
+            next;
+        }
+
+        my @r;
+        for my $parent (@parents) {
+            my $name = $parent->reverse eq $parents[0]->reverse
+                       ? '/' . $parent->reverse
+                       : '-> ' . $parent->reverse;
+
+            if (my $cap = $parent->attributes->{CaptureArgs}) {
+                $name .= ' (' . $cap->[0] . ')';
+            }
+
+            push @r, [ '', $name ];
+        }
+        push @r, [ '', (@r ? '=> ' : '') . '/' . $endpoint->reverse ];
+        $r[0][0] = join('/', '', @parts) || '/';
+
+        push @rows, @r;
+    }
+
+    if (@unattached) {
+        push @rows, undef;
+        push @rows, ['Private', 'Missing parent'];
+        push @rows, undef;
+
+        push @rows, @unattached;
+    }
+
+    \@rows;
 }
 
 __PACKAGE__->meta->make_immutable;
