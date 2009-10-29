@@ -84,7 +84,8 @@ sub _parse_Private_attr {
     my ($self, $name, $value) = @_;
 
     if ($value) {
-        carp "Arguments to Private attribute are invalid. ignored: Private('${value}')"
+        carp "Arguments to Private attribute are invalid. ignored: Private('${value}')";
+        return;
     }
 
     return Private => 1;

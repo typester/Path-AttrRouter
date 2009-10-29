@@ -190,7 +190,8 @@ sub _parse_action_attrs {
 
             my $initializer = "_parse_${k}_attr";
             if ($controller->can($initializer)) {
-                ($k, $v) = $controller->$initializer($name, $v);
+                ($k, $v) = $controller->$initializer($name, $v)
+                    or next;
                 push @{ $parsed{$k} }, $v;
             }
             else {
