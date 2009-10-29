@@ -71,6 +71,12 @@ sub _parse_Local_attr {
 
 sub _parse_Args_attr {
     my ($self, $name, $value) = @_;
+
+    if (defined $value and $value !~ /^\d+$/) {
+        carp "Args attribute is required numeric arguments: ignored Args('${value}')";
+        return;
+    }
+
     return Args => $value;
 }
 

@@ -25,7 +25,15 @@ has num_args => (
     lazy    => 1,
     default => sub {
         my $self = shift;
-        $self->attributes->{Args} ? $self->attributes->{Args}[0] : 0;
+
+        return 0 unless exists $self->attributes->{Args};
+
+        if (defined $self->attributes->{Args}[0]) {
+            return $self->attributes->{Args}[0];
+        }
+        else {
+            return;
+        }
     },
 );
 
