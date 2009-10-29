@@ -4,15 +4,18 @@ use Carp;
 
 extends any_moose('::Object'), 'Class::Data::Inheritable';
 
-for (qw/_attr_cache _method_cache/) {
-    __PACKAGE__->mk_classdata($_);
-    __PACKAGE__->$_([]);
-}
+__PACKAGE__->mk_classdata( _attr_cache => [] );
 
 has namespace => (
     is       => 'rw',
     isa      => 'Str',
     required => 1,
+);
+
+has _method_cache => (
+    is      => 'rw',
+    isa     => 'ArrayRef',
+    default => sub { [] },
 );
 
 no Any::Moose;

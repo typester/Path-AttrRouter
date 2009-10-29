@@ -114,8 +114,6 @@ sub _register {
     my ($self, $controller) = @_;
     my $context_class = ref $controller || $controller;
 
-    $controller->_method_cache([ @{$controller->_method_cache} ]);
-
     $self->_ensure_class_loaded('Data::Util');
     while (my $attr = shift @{ $controller->_attr_cache || [] }) {
         my ($pkg, $method) = Data::Util::get_code_info($attr->[0]);
