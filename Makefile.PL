@@ -5,6 +5,7 @@ all_from 'lib/Path/AttrRouter.pm';
 requires 'Any::Moose' => '0.10';
 requires 'Module::Pluggable::Object';
 requires 'Text::SimpleTable' => '1.1';
+requires 'Data::Util';
 
 test_requires 'Test::More' => '0.88';
 use_test_base;
