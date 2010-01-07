@@ -233,8 +233,36 @@ Path::AttrRouter - Module abstract (<= 44 characters) goes here
 
 =head1 SYNOPSIS
 
-  use Path::AttrRouter;
-  blah blah blah
+    package MyController;
+    use base 'Path::AttrRouter::Controller';
+
+    sub index :Path { }
+    sub index2 :Path :Args(2) { }
+    sub index1 :Path :Args(1) { }
+    sub index3 :Path :Args(3) { }
+
+    package MyController::Args;
+    use base 'Path::AttrRouter::Controller';
+
+    sub index :Path :Args(1) {
+        my ($self, $arg) = @_;
+    }
+
+    package MyController::Regex;
+    use base 'Path::AttrRouter::Controller';
+
+    sub index :Regex('^regex/(\d+)/(.+)') {
+        my ($self, @captures) = @_;
+    }
+
+    package main;
+    use Path::AttrRouter;
+
+    my $router = Path::AttrRouter->new( search_path => 'MyController' );
+    my $m = $router->match('/args/hoge');
+    print $m->action->name, "\n";      # => 'index'
+    print $m->action->namespace, "\n"; # => 'args'
+    print $m->args->[0], "\n";         # hoge
 
 =head1 DESCRIPTION
 
