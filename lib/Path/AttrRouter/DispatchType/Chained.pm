@@ -146,7 +146,7 @@ sub list {
         my $parent;
         while ($cur) {
             if (my $cap = $cur->attributes->{CaptureArgs}) {
-                unshift @parts, (('*') x $cap->[0]);
+                unshift @parts, (('*') x $cap->[0]) if $cap->[0];
             }
             if (my $pp = $cur->attributes->{PathPart}) {
                 unshift @parts, $pp->[0]

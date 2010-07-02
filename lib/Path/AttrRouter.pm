@@ -5,6 +5,7 @@ use Carp;
 use Path::AttrRouter::Controller;
 use Path::AttrRouter::Action;
 use Path::AttrRouter::Match;
+use Try::Tiny;
 
 our $VERSION = '0.01';
 
@@ -24,6 +25,11 @@ has action_class => (
     is      => 'rw',
     isa     => 'Str',
     default => 'Path::AttrRouter::Action',
+);
+
+has action_cache => (
+    is  => 'rw',
+    isa => 'Str',
 );
 
 has dispatch_types => (
@@ -60,15 +66,12 @@ no Any::Moose;
 sub BUILD {
     my $self = shift;
 
-    # search on-memory modules
-    my @modules = $self->_search_loaded_classes($self->search_path);
-
-    # search unload modules
-    $self->_ensure_class_loaded('Module::Pluggable::Object');
-    my $finder = Module::Pluggable::Object->new(search_path => $self->search_path);
-    push @modules, $finder->plugins;
-
-    $self->_load_modules(@modules);
+    if (my $cache_file = $self->action_cache) {
+        $self->_load_cached_modules($cache_file);
+    }
+    else {
+        $self->_load_modules;
+    }
 }
 
 sub match {
@@ -144,8 +147,45 @@ sub get_action_containers {
     reverse @containers;
 }
 
+sub make_action_cache {
+    my ($self, $file) = @_;
+
+    my $used_dispatch_types = [grep { $_->used } @{ $self->dispatch_types }];
+
+    # decompile regexp action because storable doen't recognize compiled regexp
+    my ($regex_type) = grep { $_->name eq 'Regex' } @{ $self->dispatch_types };
+    if ($regex_type->used) {
+        for my $compiled (@{ $regex_type->compiled }) {
+            $compiled->{re} = "$compiled->{re}";
+        }
+    }
+
+    for my $namespace (keys %{ $self->actions }) {
+        my $container = $self->actions->{ $namespace };
+        for my $name (keys %{ $container || {} }) {
+            my $action = $container->{$name};
+            $action->{container} = ref $action->{container};
+        }
+    }
+
+    my $cache = {
+        dispatch_types => $used_dispatch_types,
+        actions        => $self->actions,
+    };
+
+    Storable::store($cache, $file);
+}
+
 sub _load_modules {
-    my ($self, @modules) = @_;
+    my ($self) = @_;
+
+    # search on-memory modules
+    my @modules = $self->_search_loaded_classes($self->search_path);
+
+    # search unload modules
+    $self->_ensure_class_loaded('Module::Pluggable::Object');
+    my $finder = Module::Pluggable::Object->new(search_path => $self->search_path);
+    push @modules, $finder->plugins;
 
     my $root = $self->search_path;
     for my $module (@modules) {
@@ -158,6 +198,25 @@ sub _load_modules {
         $controller->namespace(lc $namespace) unless defined $controller->namespace;
         $self->_register($controller);
     }
+}
+
+sub _load_cached_modules {
+    my ($self, $cache_file) = @_;
+
+    $self->_ensure_class_loaded('Storable');
+
+    my $cache = try { Storable::retrieve($cache_file) };
+
+    unless ($cache) {
+        # load modules and fill cache
+        $self->_load_modules;
+        $self->make_action_cache($cache_file);
+        return;
+    }
+
+    $self->_ensure_class_loaded(ref $_) for @{ $cache->{dispatch_types} || [] };
+    $self->dispatch_types($cache->{dispatch_types});
+    $self->actions($cache->{actions});
 }
 
 sub _register {
@@ -257,7 +316,7 @@ sub _parse_action_attrs {
 
 sub _ensure_class_loaded {
     my ($self, $class) = @_;
-    Any::Moose::load_class($class) unless Any::Moose::is_class_loaded($class);
+    Any::Moose::load_class($class);
 }
 
 __PACKAGE__->meta->make_immutable;
