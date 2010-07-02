@@ -110,6 +110,40 @@ sub print_table {
     print shift->routing_table->draw;
 }
 
+sub get_action {
+    my ($self, $action, $namespace) = @_;
+    return unless $action;
+
+    $namespace ||= '';
+    $namespace = '' if $namespace eq '/';
+
+    my $container = $self->actions->{ $namespace } or return;
+    $container->{ $action };
+}
+
+sub get_actions {
+    my ($self, $action, $namespace) = @_;
+    return () unless $action;
+    grep { defined } map { $_->{ $action } } $self->get_action_containers($namespace);
+}
+
+sub get_action_containers {
+    my ($self, $namespace) = @_;
+    $namespace ||= '';
+    $namespace = '' if $namespace eq '/';
+
+    my @containers;
+    if (length $namespace) {
+        do {
+            my $container = $self->actions->{ $namespace };
+            push @containers, $container if $container;
+        } while $namespace =~ s!/[^/]+$!!;
+    }
+    push @containers, $self->actions->{''} if $self->actions->{''};
+
+    reverse @containers;
+}
+
 sub _load_modules {
     my ($self, @modules) = @_;
 
@@ -129,6 +163,8 @@ sub _load_modules {
 sub _register {
     my ($self, $controller) = @_;
     my $context_class = ref $controller || $controller;
+
+    $controller->_method_cache([ @{$controller->_method_cache} ]);
 
     $self->_ensure_class_loaded('Data::Util');
     while (my $attr = shift @{ $controller->_attr_cache || [] }) {
