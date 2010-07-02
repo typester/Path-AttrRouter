@@ -7,9 +7,8 @@ extends any_moose('::Object'), 'Class::Data::Inheritable';
 __PACKAGE__->mk_classdata( _attr_cache => [] );
 
 has namespace => (
-    is       => 'rw',
-    isa      => 'Str',
-    required => 1,
+    is  => 'rw',
+    isa => 'Str',
 );
 
 has _method_cache => (

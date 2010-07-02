@@ -120,7 +120,8 @@ sub _load_modules {
         (my $namespace = $module) =~ s/^$root(?:::)?//;
         $namespace =~ s!::!/!g;
 
-        my $controller = $module->new( namespace => lc $namespace );
+        my $controller = $module->new;
+        $controller->namespace(lc $namespace) unless defined $controller->namespace;
         $self->_register($controller);
     }
 }
