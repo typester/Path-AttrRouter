@@ -42,13 +42,13 @@ sub dispatch {
                     0, $act->attributes->{CaptureArgs}[0];
             }
             local $self->{captures} = \@c;
-            $act->dispatch(@c);
+            $act->dispatch(@args, @c);
         }
         $last->dispatch(@args, @{ $self->args });
     }
     else {
         my @match_args = @{ $self->captures } ? @{ $self->captures } : @{ $self->args };
-        $self->action->dispatch( $self, @args, @match_args );
+        $self->action->dispatch( @args, @match_args );
     }
 }
 
