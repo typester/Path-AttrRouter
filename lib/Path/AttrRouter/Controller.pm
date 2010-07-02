@@ -5,16 +5,11 @@ use Carp;
 extends any_moose('::Object'), 'Class::Data::Inheritable';
 
 __PACKAGE__->mk_classdata( _attr_cache => [] );
+__PACKAGE__->mk_classdata( _method_cache => [] );
 
 has namespace => (
     is  => 'rw',
     isa => 'Str',
-);
-
-has _method_cache => (
-    is      => 'rw',
-    isa     => 'ArrayRef',
-    default => sub { [] },
 );
 
 no Any::Moose;
