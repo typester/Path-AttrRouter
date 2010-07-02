@@ -37,15 +37,21 @@ has num_args => (
     },
 );
 
+has chain => (
+    is      => 'rw',
+    isa     => 'ArrayRef',
+    default => sub { [] },
+);
+
 no Any::Moose;
 
 sub dispatch {
-    my ($self, $match, @args) = @_;
+    my $self = shift;
 
-    my @action_args = @{ $match->captures } ? @{ $match->captures } : @{ $match->args };
+    my $class  = $self->controller;
+    my $method = $self->name;
 
-    my $code = $self->controller->can( $self->name );
-    $code->( $self->controller, @args, @action_args);
+    $class->$method(@_);
 }
 
 sub match_args {
@@ -54,6 +60,13 @@ sub match_args {
     my $num_args = $self->num_args;
     return 1 unless defined($num_args) && length($num_args);
     return scalar(@$args) == $num_args;
+}
+
+sub from_chain {
+    my ($class, $chains) = @_;
+    my $final = $chains->[-1];
+
+    $class->new({ %$final, chain => $chains });
 }
 
 __PACKAGE__->meta->make_immutable;

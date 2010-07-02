@@ -4,8 +4,6 @@ use Any::Moose;
 use Carp;
 use File::Spec::Unix;
 
-use Path::AttrRouter::ActionChain;
-
 has name => (
     is      => 'rw',
     isa     => 'Str',
@@ -33,7 +31,7 @@ has actions => (
 no Any::Moose;
 
 sub match {
-    my ($self, $path, $args, $captures) = @_;
+    my ($self, $path, $args, $captures, $action_class) = @_;
     return if @$args;
 
     my @parts = split '/', $path;
@@ -44,7 +42,7 @@ sub match {
     @$args = @$parts;
     @$captures = @$action_captures;
 
-    return Path::AttrRouter::ActionChain->from_chain($chain);
+    return $action_class->from_chain($chain);
 }
 
 sub recurse_match {

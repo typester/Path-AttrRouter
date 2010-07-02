@@ -87,7 +87,7 @@ sub match {
         $p =~ s!^/!!;
 
         for my $type (@{ $self->dispatch_types }) {
-            $action = $type->match($p, \@args, \@captures);
+            $action = $type->match($p, \@args, \@captures, $self->action_class);
             last DESCEND if $action;
         }
 
@@ -100,10 +100,14 @@ sub match {
         for grep {defined} @captures;
 
     if ($action) {
+        # recreate controller instance if it is cached object
+        $self->_load_modules($action->controller) unless ref $action->controller;
+
         return Path::AttrRouter::Match->new(
             action   => $action,
             args     => \@args,
             captures => \@captures,
+            router   => $self,
         );
     }
     return;
@@ -114,20 +118,30 @@ sub print_table {
 }
 
 sub get_action {
-    my ($self, $action, $namespace) = @_;
-    return unless $action;
+    my ($self, $name, $namespace) = @_;
+    return unless $name;
 
     $namespace ||= '';
     $namespace = '' if $namespace eq '/';
 
     my $container = $self->actions->{ $namespace } or return;
-    $container->{ $action };
+    my $action = $container->{ $name };
+
+    $action->controller( $self->_load_modules($action->controller) )
+        unless ref $action->controller;
+
+    $action;
 }
 
 sub get_actions {
     my ($self, $action, $namespace) = @_;
     return () unless $action;
-    grep { defined } map { $_->{ $action } } $self->get_action_containers($namespace);
+
+    my @actions = grep { defined } map { $_->{ $action } } $self->get_action_containers($namespace);
+    $_->controller( $self->_load_modules($_->controller) )
+        for grep { !ref $_->controller } @actions;
+
+    @actions;
 }
 
 sub get_action_containers {
@@ -189,15 +203,24 @@ sub _load_modules {
 
     my $root = $self->search_path;
     for my $module (@modules) {
-        $self->_ensure_class_loaded($module);
-
-        (my $namespace = $module) =~ s/^$root(?:::)?//;
-        $namespace =~ s!::!/!g;
-
-        my $controller = $module->new;
-        $controller->namespace(lc $namespace) unless defined $controller->namespace;
+        my $controller = $self->_load_module($module);
         $self->_register($controller);
     }
+}
+
+sub _load_module {
+    my ($self, $module) = @_;
+
+    my $root = $self->search_path;
+    $self->_ensure_class_loaded($module);
+
+    (my $namespace = $module) =~ s/^$root(?:::)?//;
+    $namespace =~ s!::!/!g;
+
+    my $controller = $module->new;
+    $controller->namespace(lc $namespace) unless defined $controller->namespace;
+
+    $controller;
 }
 
 sub _load_cached_modules {
