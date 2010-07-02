@@ -66,6 +66,8 @@ no Any::Moose;
 sub BUILD {
     my $self = shift;
 
+    $self->_ensure_class_loaded($self->action_class);
+
     if (my $cache_file = $self->action_cache) {
         $self->_load_cached_modules($cache_file);
     }
