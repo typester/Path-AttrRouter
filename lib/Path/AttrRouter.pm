@@ -103,7 +103,7 @@ sub match {
 
     if ($action) {
         # recreate controller instance if it is cached object
-        $self->_load_modules($action->controller) unless ref $action->controller;
+        $self->_load_module($action->controller) unless ref $action->controller;
 
         return Path::AttrRouter::Match->new(
             action   => $action,
@@ -180,7 +180,7 @@ sub make_action_cache {
         my $container = $self->actions->{ $namespace };
         for my $name (keys %{ $container || {} }) {
             my $action = $container->{$name};
-            $action->{container} = ref $action->{container};
+            $action->{controller} = ref $action->{controller};
         }
     }
 
