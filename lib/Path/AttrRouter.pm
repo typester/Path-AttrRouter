@@ -103,7 +103,9 @@ sub match {
 
     if ($action) {
         # recreate controller instance if it is cached object
-        $self->_load_module($action->controller) unless ref $action->controller;
+        unless (ref $action->controller) {
+            $action->controller($self->_load_module($action->controller));
+        }
 
         return Path::AttrRouter::Match->new(
             action   => $action,
@@ -129,7 +131,7 @@ sub get_action {
     my $container = $self->actions->{ $namespace } or return;
     my $action = $container->{ $name };
 
-    $action->controller( $self->_load_modules($action->controller) )
+    $action->controller( $self->_load_module($action->controller) )
         unless ref $action->controller;
 
     $action;
@@ -140,7 +142,7 @@ sub get_actions {
     return () unless $action;
 
     my @actions = grep { defined } map { $_->{ $action } } $self->get_action_containers($namespace);
-    $_->controller( $self->_load_modules($_->controller) )
+    $_->controller( $self->_load_module($_->controller) )
         for grep { !ref $_->controller } @actions;
 
     @actions;
