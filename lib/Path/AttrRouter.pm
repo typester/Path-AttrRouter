@@ -129,7 +129,7 @@ sub get_action {
     $namespace = '' if $namespace eq '/';
 
     my $container = $self->actions->{ $namespace } or return;
-    my $action = $container->{ $name };
+    my $action = $container->{ $name } or return;
 
     $action->controller( $self->_load_module($action->controller) )
         unless ref $action->controller;
