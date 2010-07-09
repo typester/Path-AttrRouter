@@ -141,14 +141,14 @@ sub get_actions {
     my ($self, $action, $namespace) = @_;
     return () unless $action;
 
-    my @actions = grep { defined } map { $_->{ $action } } $self->get_action_containers($namespace);
+    my @actions = grep { defined } map { $_->{ $action } } $self->_get_action_containers($namespace);
     $_->controller( $self->_load_module($_->controller) )
         for grep { !ref $_->controller } @actions;
 
     @actions;
 }
 
-sub get_action_containers {
+sub _get_action_containers {
     my ($self, $namespace) = @_;
     $namespace ||= '';
     $namespace = '' if $namespace eq '/';
