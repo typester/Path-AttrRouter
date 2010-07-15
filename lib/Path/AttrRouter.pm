@@ -89,7 +89,7 @@ sub match {
         $p =~ s!^/!!;
 
         for my $type (@{ $self->dispatch_types }) {
-            $action = $type->match($p, \@args, \@captures, $self->action_class);
+            $action = $type->match({path => $p, args => \@args, captures => \@captures, action_class => $self->action_class});
             last DESCEND if $action;
         }
 

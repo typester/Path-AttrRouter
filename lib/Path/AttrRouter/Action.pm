@@ -54,12 +54,19 @@ sub dispatch {
     $class->$method(@_);
 }
 
+sub match {
+    my ($self, $condition) = @_;
+
+    return 0 unless $self->match_args($condition->{args});
+    return 1;
+}
+
 sub match_args {
     my ($self, $args) = @_;
 
     my $num_args = $self->num_args;
     return 1 unless defined($num_args) && length($num_args);
-    return scalar(@$args) == $num_args;
+    return scalar(@args) == $num_args;
 }
 
 sub from_chain {
