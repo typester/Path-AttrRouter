@@ -66,7 +66,7 @@ sub match_args {
 
     my $num_args = $self->num_args;
     return 1 unless defined($num_args) && length($num_args);
-    return scalar(@args) == $num_args;
+    return scalar(@$args) == $num_args;
 }
 
 sub from_chain {
