@@ -6,6 +6,7 @@ requires 'Any::Moose' => '0.10';
 requires 'Module::Pluggable::Object';
 requires 'Text::SimpleTable' => '1.1';
 requires 'Data::Util';
+requires 'Class::Data::Inheritable';
 
 test_requires 'Test::More' => '0.88';
 use_test_base;
