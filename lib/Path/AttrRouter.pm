@@ -221,10 +221,14 @@ sub _load_module {
     (my $namespace = $module) =~ s/^$root(?:::)?//;
     $namespace =~ s!::!/!g;
 
-    my $controller = $module->new;
-    $controller->namespace(lc $namespace) unless defined $controller->namespace;
-
-    $controller;
+    if (my $cache = $self->{__object_cache}{$module}) {
+        return $cache;
+    }
+    else {
+        my $controller = $module->new;
+        $controller->namespace(lc $namespace) unless defined $controller->namespace;
+        return $self->{__object_cache}{$module} = $controller;
+    }
 }
 
 sub _load_cached_modules {
