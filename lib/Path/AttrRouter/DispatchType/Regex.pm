@@ -17,12 +17,12 @@ has compiled => (
 no Any::Moose;
 
 sub match {
-    my ($self, $path, $args, $captures) = @_;
+    my ($self, $condition) = @_;
 
     for my $compiled (@{ $self->compiled }) {
-        if (my @captures = ($path =~ $compiled->{re})) {
-            @$captures = @captures;
-            return $compiled->{action};
+        if (my @captures = ($condition->{path} =~ $compiled->{re})) {
+            @{$condition->{captures}} = @captures;
+            return $compiled->{action} if $compiled->{action}->match($condition);
         }
     }
 

@@ -77,7 +77,7 @@ sub BUILD {
 }
 
 sub match {
-    my ($self, $path) = @_;
+    my ($self, $path, $condition) = @_;
 
     my @path = split m!/!, $path;
     unshift @path, '' unless @path;
@@ -89,7 +89,13 @@ sub match {
         $p =~ s!^/!!;
 
         for my $type (@{ $self->dispatch_types }) {
-            $action = $type->match($p, \@args, \@captures, $self->action_class);
+            $action = $type->match({
+                path => $p,
+                args => \@args,
+                captures => \@captures,
+                action_class => $self->action_class,
+                $condition ? (%$condition) : (),
+            });
             last DESCEND if $action;
         }
 
