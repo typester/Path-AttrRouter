@@ -111,6 +111,9 @@ sub match {
         # recreate controller instance if it is cached object
         unless (ref $action->controller) {
             $action->controller($self->_load_module($action->controller));
+            for my $act (@{ $action->chain }) {
+                $act->controller($self->_load_module($act->controller));
+            }
         }
 
         return Path::AttrRouter::Match->new(
