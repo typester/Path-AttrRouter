@@ -111,7 +111,7 @@ sub register {
         if (defined $action->attributes->{CaptureArgs}[0]) {
             $num += $action->attributes->{CaptureArgs}[0];
         }
-        else {
+        elsif (defined $action->num_args) {
             $num += $action->num_args;
         }
     };

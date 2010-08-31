@@ -25,6 +25,8 @@ my $page;
         my ($self,) = @_;
     }
 
+    sub default :Chained('../page') :Args { }
+
 }
 
 my $router = Path::AttrRouter->new( search_path => 'MyController' );
@@ -52,6 +54,11 @@ my $router = Path::AttrRouter->new( search_path => 'MyController' );
 
     $m->dispatch;
     is $page, 'hello', 'page name ok';
+}
+
+{
+    my $m = $router->match('/page/hello/none');
+    is $m, undef, 'no action ok';
 }
 
 done_testing;
