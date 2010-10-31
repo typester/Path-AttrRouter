@@ -106,14 +106,8 @@ sub register {
 
     my $num_parts = sub {
         my $action = $_[0];
-        my @parts = split '/', $action->attributes->{PathPart};
-        my $num   = scalar @parts;
-        if (defined $action->attributes->{CaptureArgs}[0]) {
-            $num += $action->attributes->{CaptureArgs}[0];
-        }
-        elsif (defined $action->num_args) {
-            $num += $action->num_args;
-        }
+        my @parts = split '/', $action->attributes->{PathPart}[0];
+        return scalar @parts;
     };
 
     $self->actions->{ '/' . $action->reverse } = $action;
