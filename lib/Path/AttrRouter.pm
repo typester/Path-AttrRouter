@@ -77,7 +77,7 @@ sub BUILD {
 }
 
 sub match {
-    my ($self, $path) = @_;
+    my ($self, $path, $condition) = @_;
 
     my @path = split m!/!, $path;
     unshift @path, '' unless @path;
@@ -89,7 +89,13 @@ sub match {
         $p =~ s!^/!!;
 
         for my $type (@{ $self->dispatch_types }) {
-            $action = $type->match($p, \@args, \@captures, $self->action_class);
+            $action = $type->match({
+                path => $p,
+                args => \@args,
+                captures => \@captures,
+                action_class => $self->action_class,
+                $condition ? (%$condition) : (),
+            });
             last DESCEND if $action;
         }
 
@@ -105,6 +111,9 @@ sub match {
         # recreate controller instance if it is cached object
         unless (ref $action->controller) {
             $action->controller($self->_load_module($action->controller));
+            for my $act (@{ $action->chain }) {
+                $act->controller($self->_load_module($act->controller));
+            }
         }
 
         return Path::AttrRouter::Match->new(
@@ -129,7 +138,7 @@ sub get_action {
     $namespace = '' if $namespace eq '/';
 
     my $container = $self->actions->{ $namespace } or return;
-    my $action = $container->{ $name };
+    my $action = $container->{ $name } or return;
 
     $action->controller( $self->_load_module($action->controller) )
         unless ref $action->controller;
@@ -141,14 +150,14 @@ sub get_actions {
     my ($self, $action, $namespace) = @_;
     return () unless $action;
 
-    my @actions = grep { defined } map { $_->{ $action } } $self->get_action_containers($namespace);
+    my @actions = grep { defined } map { $_->{ $action } } $self->_get_action_containers($namespace);
     $_->controller( $self->_load_module($_->controller) )
         for grep { !ref $_->controller } @actions;
 
     @actions;
 }
 
-sub get_action_containers {
+sub _get_action_containers {
     my ($self, $namespace) = @_;
     $namespace ||= '';
     $namespace = '' if $namespace eq '/';
@@ -221,10 +230,14 @@ sub _load_module {
     (my $namespace = $module) =~ s/^$root(?:::)?//;
     $namespace =~ s!::!/!g;
 
-    my $controller = $module->new;
-    $controller->namespace(lc $namespace) unless defined $controller->namespace;
-
-    $controller;
+    if (my $cache = $self->{__object_cache}{$module}) {
+        return $cache;
+    }
+    else {
+        my $controller = $module->new;
+        $controller->namespace(lc $namespace) unless defined $controller->namespace;
+        return $self->{__object_cache}{$module} = $controller;
+    }
 }
 
 sub _load_cached_modules {

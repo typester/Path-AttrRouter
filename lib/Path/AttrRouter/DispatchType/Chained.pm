@@ -31,22 +31,22 @@ has actions => (
 no Any::Moose;
 
 sub match {
-    my ($self, $path, $args, $captures, $action_class) = @_;
-    return if @$args;
+    my ($self, $condition) = @_;
+    return if @{$condition->{args}};
 
-    my @parts = split '/', $path;
+    my @parts = split '/', $condition->{path};
 
-    my ($chain, $action_captures, $parts) = $self->recurse_match('/', @parts);
+    my ($chain, $action_captures, $parts) = $self->recurse_match($condition, '/', @parts);
     return unless $chain;
 
-    @$args = @$parts;
-    @$captures = @$action_captures;
+    @{$condition->{args}}     = @$parts;
+    @{$condition->{captures}} = @$action_captures;
 
-    return $action_class->from_chain($chain);
+    return $condition->{action_class}->from_chain($chain);
 }
 
 sub recurse_match {
-    my ($self, $parent, @pathparts) = @_;
+    my ($self, $condition, $parent, @pathparts) = @_;
 
     my @chains = @{ $self->chain_from->{ $parent } || [] }
         or return;
@@ -69,13 +69,13 @@ sub recurse_match {
 
             my @captures = splice @parts, 0, $capture_args;
             my ($actions, $captures, $action_parts)
-                = $self->recurse_match('/'.$action->reverse, @parts);
+                = $self->recurse_match($condition, '/'.$action->reverse, @parts);
             next unless $actions;
 
             return ([ $action, @$actions ], [@captures, @$captures], $action_parts);
         }
         else {
-            next unless $action->match_args(\@parts);
+            next unless $action->match({%$condition, args => \@parts});
             return ([ $action ], [], \@parts);
         }
     }
@@ -111,7 +111,7 @@ sub register {
         if (defined $action->attributes->{CaptureArgs}[0]) {
             $num += $action->attributes->{CaptureArgs}[0];
         }
-        else {
+        elsif (defined $action->num_args) {
             $num += $action->num_args;
         }
     };

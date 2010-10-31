@@ -54,6 +54,13 @@ sub dispatch {
     $class->$method(@_);
 }
 
+sub match {
+    my ($self, $condition) = @_;
+
+    return 0 unless $self->match_args($condition->{args});
+    return 1;
+}
+
 sub match_args {
     my ($self, $args) = @_;
 

@@ -17,12 +17,14 @@ has paths => (
 no Any::Moose;
 
 sub match {
-    my ($self, $path, $args, $captures) = @_;
+    my ($self, $condition) = @_;
+
+    my $path = $condition->{path};
 
     $path = '/' if !defined $path || !length $path;
 
     for my $action (@{ $self->paths->{$path} || [] }) {
-        return $action if $action->match_args($args);
+        return $action if $action->match($condition);
     }
 
     return;
