@@ -107,13 +107,26 @@ sub register {
     my $num_parts = sub {
         my $action = $_[0];
         my @parts = split '/', $action->attributes->{PathPart}[0];
-        return scalar @parts;
+        scalar @parts;
+    };
+
+    my $num_args = sub {
+        my $action = $_[0];
+        my $num = -1;
+        if (defined $action->attributes->{CaptureArgs}[0]) {
+            $num = $action->attributes->{CaptureArgs}[0];
+        }
+        elsif (defined $action->num_args) {
+            $num = $action->num_args;
+        }
+
+        $num;
     };
 
     $self->actions->{ '/' . $action->reverse } = $action;
     push @{ $self->endpoints }, $action unless $action->attributes->{CaptureArgs};
 
-    @$children = sort { $num_parts->($b) <=> $num_parts->($a) } @$children, $action;
+    @$children = sort { $num_parts->($b) <=> $num_parts->($a) } sort { $num_args->($b) <=> $num_args->($a) } @$children, $action;
 }
 
 sub used {
