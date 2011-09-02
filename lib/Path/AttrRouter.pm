@@ -214,6 +214,17 @@ sub _load_modules {
     my $finder = Module::Pluggable::Object->new(search_path => $self->search_path);
     push @modules, $finder->plugins;
 
+    # root module
+    (my $root_class = $self->search_path) =~ s/::$//;
+    unshift @modules, $root_class;
+
+    # uniquify
+    @modules = do {
+        my %found;
+        $found{$_}++ for @modules;
+        keys %found;
+    };
+
     my $root = $self->search_path;
     for my $module (@modules) {
         my $controller = $self->_load_module($module);
