@@ -216,7 +216,7 @@ sub _load_modules {
 
     # root module
     (my $root_class = $self->search_path) =~ s/::$//;
-    unshift @modules, $root_class;
+    unshift @modules, $root_class if try { $self->_ensure_class_loaded($root_class) };
 
     # uniquify
     @modules = do {
