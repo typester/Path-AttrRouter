@@ -1,4 +1,7 @@
 Revision history for Perl extension Path::AttrRouter
 
-  0.01  Tue Oct 27 11:23:26 2009
-        - original version
+0.02 2011-09-02T17:56:56+09:00
+     - support MyApp::Controller namespace for root controller
+
+0.01 2010-11-01T10:42:39+09:00
+     - initial version

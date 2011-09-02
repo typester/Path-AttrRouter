@@ -7,7 +7,7 @@ use Path::AttrRouter::Action;
 use Path::AttrRouter::Match;
 use Try::Tiny;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 has search_path => (
     is       => 'ro',
