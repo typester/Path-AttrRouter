@@ -419,6 +419,22 @@ to leave the stub unedited.
 
 Blah blah blah.
 
+=head1 METHODS
+
+=over 4
+
+=item get_action
+
+=item get_actions
+
+=item make_action_cache
+
+=item match
+
+=item print_table
+
+=back
+
 =head1 AUTHOR
 
 Daisuke Murase <typester@cpan.org>
