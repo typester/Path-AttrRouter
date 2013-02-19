@@ -2,7 +2,7 @@ use inc::Module::Install;
 name 'Path-AttrRouter';
 all_from 'lib/Path/AttrRouter.pm';
 
-requires 'Any::Moose' => '0.10';
+requires 'Mouse' => '1.05';
 requires 'Module::Pluggable::Object';
 requires 'Text::SimpleTable' => '1.1';
 requires 'Data::Util';

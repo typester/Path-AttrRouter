@@ -1,5 +1,5 @@
 package Path::AttrRouter::Match;
-use Any::Moose;
+use Mouse;
 
 has action => (
     is       => 'rw',
@@ -25,7 +25,7 @@ has router => (
     weak_ref => 1,
 );
 
-no Any::Moose;
+no Mouse;
 
 sub dispatch {
     my ($self, @args) = @_;

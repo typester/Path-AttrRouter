@@ -1,5 +1,5 @@
 package Cat;
-use Any::Moose;
+use Mouse;
 
 use Plack::Request;
 use Path::AttrRouter;
@@ -29,7 +29,7 @@ has context => (
     isa => 'Cat::Context',
 );
 
-no Any::Moose;
+no Mouse;
 
 sub BUILD {
     my ($self) = @_;
