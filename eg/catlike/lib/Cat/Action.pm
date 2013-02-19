@@ -1,5 +1,5 @@
 package Cat::Action;
-use Any::Moose;
+use Mouse;
 
 extends 'Path::AttrRouter::Action';
 

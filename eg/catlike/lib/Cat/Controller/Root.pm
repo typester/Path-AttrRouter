@@ -1,5 +1,5 @@
 package Cat::Controller::Root;
-use Any::Moose;
+use Mouse;
 use Path::AttrRouter::Controller '-extends';
 
 use Text::MicroTemplate::File;
@@ -16,7 +16,7 @@ has mt => (
     },
 );
 
-no Any::Moose;
+no Mouse;
 
 sub index :Path {
     my ($self, $c) = @_;

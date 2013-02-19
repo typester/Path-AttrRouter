@@ -1,8 +1,8 @@
 package Path::AttrRouter::Controller;
-use Any::Moose;
+use Mouse;
 use Carp;
 
-extends any_moose('::Object'), 'Class::Data::Inheritable';
+extends 'Mouse::Object', 'Class::Data::Inheritable';
 
 __PACKAGE__->mk_classdata( _attr_cache => [] );
 __PACKAGE__->mk_classdata( _method_cache => [] );
@@ -12,7 +12,7 @@ has namespace => (
     isa => 'Str',
 );
 
-no Any::Moose;
+no Mouse;
 
 sub import {
     my ($class, $flag) = @_;

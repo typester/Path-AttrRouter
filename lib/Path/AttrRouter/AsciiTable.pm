@@ -1,5 +1,5 @@
 package Path::AttrRouter::AsciiTable;
-use Any::Moose;
+use Mouse;
 
 use Path::AttrRouter;
 use Text::SimpleTable;
@@ -33,7 +33,7 @@ has term_width => (
     },
 );
 
-no Any::Moose;
+no Mouse;
 
 sub draw {
     my ($self) = @_;

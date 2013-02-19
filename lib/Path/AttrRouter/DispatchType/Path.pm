@@ -1,5 +1,5 @@
 package Path::AttrRouter::DispatchType::Path;
-use Any::Moose;
+use Mouse;
 
 has name => (
     is      => 'rw',
@@ -14,7 +14,7 @@ has paths => (
     default => sub { {} },
 );
 
-no Any::Moose;
+no Mouse;
 
 sub match {
     my ($self, $condition) = @_;
