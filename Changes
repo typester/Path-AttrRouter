@@ -1,5 +1,8 @@
 Revision history for Perl extension Path::AttrRouter
 
+0.03 2013-02-26T12:40:56+09:00
+     - s/Any::Moose/Mouse/ (Songmu)
+
 0.02 2011-09-02T17:56:56+09:00
      - support MyApp::Controller namespace for root controller
 
