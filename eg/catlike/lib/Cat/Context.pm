@@ -1,5 +1,5 @@
 package Cat::Context;
-use Any::Moose;
+use Mouse;
 
 use Plack::Request;
 use Plack::Response;

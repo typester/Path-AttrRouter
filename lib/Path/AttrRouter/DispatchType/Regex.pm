@@ -1,5 +1,5 @@
 package Path::AttrRouter::DispatchType::Regex;
-use Any::Moose;
+use Mouse;
 
 extends 'Path::AttrRouter::DispatchType::Path';
 
@@ -14,7 +14,7 @@ has compiled => (
     default => sub { [] },
 );
 
-no Any::Moose;
+no Mouse;
 
 sub match {
     my ($self, $condition) = @_;

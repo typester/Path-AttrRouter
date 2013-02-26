@@ -1,5 +1,5 @@
 package Path::AttrRouter;
-use Any::Moose;
+use Mouse;
 
 use Carp;
 use Path::AttrRouter::Controller;
@@ -61,7 +61,7 @@ has routing_table => (
     },
 );
 
-no Any::Moose;
+no Mouse;
 
 sub BUILD {
     my $self = shift;
@@ -367,7 +367,7 @@ sub _parse_action_attrs {
 
 sub _ensure_class_loaded {
     my ($self, $class) = @_;
-    Any::Moose::load_class($class);
+    Mouse::load_class($class);
 }
 
 __PACKAGE__->meta->make_immutable;

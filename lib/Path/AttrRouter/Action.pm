@@ -1,5 +1,5 @@
 package Path::AttrRouter::Action;
-use Any::Moose;
+use Mouse;
 
 has [qw/namespace reverse name/] => (
     is       => 'ro',
@@ -43,7 +43,7 @@ has chain => (
     default => sub { [] },
 );
 
-no Any::Moose;
+no Mouse;
 
 sub dispatch {
     my $self = shift;

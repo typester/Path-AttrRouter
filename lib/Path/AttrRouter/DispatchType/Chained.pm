@@ -1,5 +1,5 @@
 package Path::AttrRouter::DispatchType::Chained;
-use Any::Moose;
+use Mouse;
 
 use Carp;
 use File::Spec::Unix;
@@ -28,7 +28,7 @@ has actions => (
     default => sub { {} },
 );
 
-no Any::Moose;
+no Mouse;
 
 sub match {
     my ($self, $condition) = @_;
