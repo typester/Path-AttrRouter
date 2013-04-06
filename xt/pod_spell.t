@@ -9,3 +9,6 @@ __DATA__
 Daisuke
 Murase
 KAYAC
+CGI
+eg
+namespace
