@@ -357,7 +357,7 @@ sub _parse_action_attrs {
                 push @{ $parsed{$k} }, $v;
             }
             else {
-                carp qq{Unsupported attribute "${k}". ignored};
+                carp qq[Unsupported attribute "${k}". ignored];
             }
         }
     }
@@ -376,12 +376,12 @@ __END__
 
 =head1 NAME
 
-Path::AttrRouter - Module abstract (<= 44 characters) goes here
+Path::AttrRouter - Path router for URLs using the attributes
 
 =head1 SYNOPSIS
 
     package MyController;
-    use base 'Path::AttrRouter::Controller';
+    use parent 'Path::AttrRouter::Controller';
     
     sub index :Path { }
     sub index2 :Path :Args(2) { }
@@ -389,14 +389,14 @@ Path::AttrRouter - Module abstract (<= 44 characters) goes here
     sub index3 :Path :Args(3) { }
     
     package MyController::Args;
-    use base 'Path::AttrRouter::Controller';
+    use parent 'Path::AttrRouter::Controller';
     
     sub index :Path :Args(1) {
         my ($self, $arg) = @_;
     }
     
     package MyController::Regex;
-    use base 'Path::AttrRouter::Controller';
+    use parent 'Path::AttrRouter::Controller';
     
     sub index :Regex('^regex/(\d+)/(.+)') {
         my ($self, @captures) = @_;
@@ -413,27 +413,54 @@ Path::AttrRouter - Module abstract (<= 44 characters) goes here
 
 =head1 DESCRIPTION
 
-Stub documentation for this module was created by ExtUtils::ModuleMaker.
-It looks like the author of the extension was negligent enough
-to leave the stub unedited.
+Path::AttrRouter is a router class specifying definitions by attributes.
 
-Blah blah blah.
+This is mainly used for method dispatching in web application frameworks.
+
+=head1 CONSTRUCTOR
+
+=head2 C<< my $router = Path::AttrRouter->new(%options) >>
+
+Options:
+
+=over
+
+=item search_path  :Str(required)
+
+Base package namespace of your controller
+
+=item action_class :Str(default: Path::AttrRouter::Action)
+
+=item action_cache :Str(optional)
+
+C<action_cache> path if using action caching
+
+The action cache is aimed at impermanent environment, eg:
+CGI or development.
+
+=back
 
 =head1 METHODS
 
-=over 4
+=head2 C<< $router->get_action($name:Str, $namespace:Str) >>
 
-=item get_action
+Returns single action object of C<< $router->action_class >>
 
-=item get_actions
+=head2 C<< $router->get_actions($name:Str, $namespace:Str) >>
 
-=item make_action_cache
+Returns action objects of array which is bunch of actions
 
-=item match
+=head2 C<< $router->make_action_cache >>
 
-=item print_table
+Make action cache
 
-=back
+=head2 C<< $router->match($path:Str $condition:HashRef) >>
+
+Returns C<Path::AttrRouter::Match>> object
+
+=head2 C<< $router->print_table >>
+
+Draw dispatching table.
 
 =head1 AUTHOR
 
