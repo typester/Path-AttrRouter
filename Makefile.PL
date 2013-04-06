@@ -48,5 +48,6 @@ auto_include;
 auto_set_repository;
 
 no_index directory => qw/xt eg/;
+readme_from;
 
 WriteAll;
